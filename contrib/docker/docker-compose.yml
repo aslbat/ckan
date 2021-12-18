@@ -8,6 +8,8 @@ volumes:
   ckan_storage:
   pg_data:
   solr_data:
+  datapusher:
+  #datapusher_log:
 
 services:
   ckan:
@@ -43,16 +45,33 @@ services:
 
   datapusher:
     container_name: datapusher
-    image: clementmouchet/datapusher
+    image: aslbat/datapusher
     ports:
       - "8800:8800"
+    environment:
+      - DATAPUSHER_HOST=0.0.0.0
+      - DATAPUSHER_PORT=8800
+      - DATAPUSHER_SQLALCHEMY_DATABASE_URI=sqlite:////tmp/job_store.db
+      - DATAPUSHER_MAX_CONTENT_LENGTH=1024000
+      - DATAPUSHER_CHUNK_SIZE=16384
+      - DATAPUSHER_CHUNK_INSERT_ROWS=250
+      - DATAPUSHER_DOWNLOAD_TIMEOUT=30
+      - DATAPUSHER_SSL_VERIFY=False
     restart: unless-stopped
+    volumes:
+      - datapusher:/usr/lib/ckan/datapusher/src
+      #- datapusher_log:/tmp
+    extra_hosts:
+      # Add hostname mapping of ckan internal ip (if ckan public ip is different)
+      # EXTERNAL_CKAN_HOSTNAME:INTERNAL_CKAN_IP
+      - "externalckan.domain.com:192.168.43.8"
+      - "dati.aslbat.it:192.168.43.88"
 
   db:
     container_name: db
     build:
       context: ../../
-      dockerfile: contrib/docker/postgresql/Dockerfile  
+      dockerfile: contrib/docker/postgresql/Dockerfile
     environment:
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}

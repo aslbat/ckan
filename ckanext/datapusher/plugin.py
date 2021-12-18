@@ -52,12 +52,23 @@ class DatapusherPlugin(p.SingletonPlugin):
         for config_option in (
             u'ckan.site_url',
             u'ckan.datapusher.url',
+            # not required otherwise ckan in unable be start and it's impossibile to genenate the token
+            # a WARN is displayed below
+            #u'ckan.datapusher.token'
         ):
             if not config.get_value(config_option):
                 raise Exception(
                     u'Config option `{0}` must be set to use the DataPusher.'.
                     format(config_option)
                 )
+
+        if not config.get_value(u'ckan.datapusher.token'):
+            log.warn("*************************************************")
+            log.warn('')
+            log.warn("WARNING!: Please configure ckan.datapusher.token option with a generated token for the user default (i.e. with the same name of ckan.site_id)")
+            log.warn('')
+            log.warn("*************************************************")
+            log.warn('')
 
     # IResourceUrlChange
 
@@ -149,8 +160,7 @@ class DatapusherPlugin(p.SingletonPlugin):
     def get_helpers(self):
         return {
             u'datapusher_status': helpers.datapusher_status,
-            u'datapusher_status_description': helpers.
-            datapusher_status_description,
+            u'datapusher_status_description': helpers.datapusher_status_description,
         }
 
     # IBlueprint
@@ -166,4 +176,5 @@ class DatapusherPlugin(p.SingletonPlugin):
         declaration.declare_list(datapusher.formats, _default_formats)
         declaration.declare(datapusher.url)
         declaration.declare(datapusher.callback_url_base)
+        declaration.declare(datapusher.token)
         declaration.declare_int(datapusher.assume_task_stale_after, 3600)

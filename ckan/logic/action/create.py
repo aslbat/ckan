@@ -1574,20 +1574,5 @@ def api_token_create(context, data_dict):
     data = api_token.postprocess(data, token_obj.id, validated_data_dict)
     token = api_token.encode(data)
 
-    # If user is the datapusher user (the user with the same name of
-    # the ckan.site_id then update apikey with token to avoid error:
-    # [ckan.lib.api_token] Cannot decode JWT token: Not enough segments
-    # because datapusher request use the old uuid4 (xxxxxx-xxxxx-xxx) apikey
-    # instead of jwt token (xxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxx.xxxxxxxxxxx)
-    datapusher_user_id = config.get_value('ckan.site_id')
-    log.info("Datapusher user id: %s" % datapusher_user_id)
-    if user == datapusher_user_id:
-        log.info("Updating apikey as last JWT token for datapusher user")
-        datapusher_user_obj = model.User.get(datapusher_user_id)
-        context['user_obj'] = datapusher_user_obj
-        user_obj = model_save.user_dict_save({'id': datapusher_user_id, 'apikey': token}, context)
-        model.Session.commit()
-    ###################################################################################
-
     result = api_token.add_extra({u'token': token})
     return result
