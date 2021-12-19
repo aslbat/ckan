@@ -61,11 +61,6 @@ services:
     volumes:
       - datapusher:/usr/lib/ckan/datapusher/src
       #- datapusher_log:/tmp
-    extra_hosts:
-      # Add hostname mapping of ckan internal ip (if ckan public ip is different)
-      # EXTERNAL_CKAN_HOSTNAME:INTERNAL_CKAN_IP
-      - "externalckan.domain.com:192.168.43.8"
-      - "dati.aslbat.it:192.168.43.88"
 
   db:
     container_name: db

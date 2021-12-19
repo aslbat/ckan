@@ -70,6 +70,17 @@ class DatapusherPlugin(p.SingletonPlugin):
             log.warn("*************************************************")
             log.warn('')
 
+        if not config.get_value(u'api_token.jwt.encode.secret'):
+            log.warn("*************************************************")
+            log.warn('')
+            log.warn("WARNING!: For datastore authentication, please configure the secret in (use same string)")
+            log.warn("    api_token.jwt.encode.secret = string:randomstring............")
+            log.warn("    api_token.jwt.decode.secret = string:randomstring............")
+            log.warn('')
+            log.warn("*************************************************")
+            log.warn('')
+
+
     # IResourceUrlChange
 
     def notify(self, resource):

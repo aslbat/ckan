@@ -60,6 +60,7 @@ def datapusher_submit(context, data_dict):
         return False
 
     datapusher_url = config.get_value('ckan.datapusher.url')
+
     callback_url_base = config.get_value(
         'ckan.datapusher.callback_url_base'
     ) or config.get_value("ckan.site_url")
@@ -138,6 +139,10 @@ def datapusher_submit(context, data_dict):
         raise(Exception(invalid_token_error))
 
     try:
+        original_base_url = ''
+        if callback_url_base:
+            original_base_url = config.get_value("ckan.site_url")
+
         r = requests.post(
             urljoin(datapusher_url, 'job'),
             headers={
@@ -156,6 +161,8 @@ def datapusher_submit(context, data_dict):
                     'set_url_type': data_dict.get('set_url_type', False),
                     'task_created': task['last_updated'],
                     'original_url': resource_dict.get('url'),
+                    # added to replace the base url behind reverse proxy with the internal base url
+                    'original_base_url': original_base_url,
                 }
             }))
         r.raise_for_status()
